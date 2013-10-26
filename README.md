@@ -10,19 +10,19 @@ to try and make a replacement. The result is exproto.
 
 Exproto has the following usage information:
 
-  Usage: exproto <options> [ <input-file> ]
+    Usage: exproto <options> [ <input-file> ]
+    
+    Extracts prototypes from C files.
+    
+    Options:
+        -h --help		Show this help.
+        -o --output <file>	Send output to this file.
+        -p --cpp		Run cpp to pre-process source files.
+        -c --comments		Include function comments in output.
+        -s --statics		Include static functions.
   
-  Extracts prototypes from C files.
-  
-  Options:
-    -h --help		Show this help.
-    -o --output <file>	Send output to this file.
-    -p --cpp		Run cpp to pre-process source files.
-    -c --comments		Include function comments in output.
-    -s --statics		Include static functions.
-  
-  All other options are passed on as-is to cpp (if it is run).
-  If <input-file> is not given or if it is '-', input is read from stdin.
+    All other options are passed on as-is to cpp (if it is run).
+    If <input-file> is not given or if it is '-', input is read from stdin.
 
 Exproto extracts function signatures from the input file and writes them
 to the standard output, or to the file given with the -o/--output option.
