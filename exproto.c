@@ -2,7 +2,7 @@
  * exproto.c: Prototype extractor.
  *
  * Copyright:	(c) 2013 Jacco van Schaik (jacco@jaccovanschaik.net)
- * Version:	$Id: exproto.c 13 2013-10-23 18:48:56Z jacco $
+ * Version:	$Id: exproto.c 15 2016-12-15 16:06:32Z jacco $
  *
  * This software is distributed under the terms of the MIT license. See
  * http://www.opensource.org/licenses/mit-license.php for details.
@@ -66,7 +66,9 @@ static int handle_preprocessor_line(FILE *fp, char **filename)
 
     /* Consume the rest of the line. */
 
-    while (c != EOF && c != '\n') c = fgetc(fp);
+    do {
+        c = fgetc(fp);
+    } while (c != EOF && c != '\n');
 
     return 0;
 }
@@ -101,6 +103,10 @@ static int handle_line_comment(FILE *fp, Buffer *buf)
     int c;
 
     while ((c = fgetc(fp)) != EOF && c != '\n') {
+        bufAddC(buf, c);
+    }
+
+    if (c == '\n') {
         bufAddC(buf, c);
     }
 

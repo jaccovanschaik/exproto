@@ -1,7 +1,7 @@
 # Makefile: Description
 #
 # Copyright:	(c) 2013 Jacco van Schaik (jacco@jaccovanschaik.net)
-# Version:	$Id: Makefile 13 2013-10-23 18:48:56Z jacco $
+# Version:	$Id: Makefile 14 2013-12-17 15:00:00Z jacco $
 #
 # This software is distributed under the terms of the MIT license. See
 # http://www.opensource.org/licenses/mit-license.php for details.
@@ -15,7 +15,7 @@ JVS_INC = -I$(JVS_TOP)/include
 INSTALL_TOP = $(HOME)
 INSTALL_BIN = $(INSTALL_TOP)/bin
 
-CFLAGS = -g $(JVS_INC)
+CFLAGS = -g -Wall $(JVS_INC)
 
 exproto: $(EXPROTO)
 	$(CC) $(CFLAGS) -o exproto $(EXPROTO) $(JVS_LIB) -lm
