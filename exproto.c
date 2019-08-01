@@ -2,7 +2,7 @@
  * exproto.c: Prototype extractor.
  *
  * Copyright:	(c) 2013 Jacco van Schaik (jacco@jaccovanschaik.net)
- * Version:	$Id: exproto.c 15 2016-12-15 16:06:32Z jacco $
+ * Version:	$Id: exproto.c 19 2019-07-29 08:04:44Z jacco $
  *
  * This software is distributed under the terms of the MIT license. See
  * http://www.opensource.org/licenses/mit-license.php for details.
@@ -86,9 +86,13 @@ static int handle_block_comment(FILE *fp, Buffer *buffer)
         if (c == '*') {
             c = fgetc(fp);
 
-            bufAddC(buffer, c);
-
-            if (c == '/') break;
+            if (c == '/') {
+                bufAddC(buffer, c);
+                break;
+            }
+            else {
+                ungetc(c, fp);
+            }
         }
     }
 
