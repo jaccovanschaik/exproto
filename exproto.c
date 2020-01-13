@@ -2,7 +2,7 @@
  * exproto.c: Prototype extractor.
  *
  * Copyright:	(c) 2013 Jacco van Schaik (jacco@jaccovanschaik.net)
- * Version:	$Id: exproto.c 15 2016-12-15 16:06:32Z jacco $
+ * Version:	$Id: exproto.c 20 2020-01-13 13:22:33Z jacco $
  *
  * This software is distributed under the terms of the MIT license. See
  * http://www.opensource.org/licenses/mit-license.php for details.
@@ -10,15 +10,16 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <ctype.h>
 
 #include <libjvs/buffer.h>
 #include <libjvs/defs.h>
 
-static int include_comment = FALSE;
-static int include_static  = FALSE;
-static int use_cpp = FALSE;
+static bool include_comment = FALSE;
+static bool include_static_functions  = FALSE;
+static bool use_cpp = FALSE;
 
 /*
  * Read a string and add it to <buf>. The string should be terminated by <terminator>.
@@ -86,9 +87,13 @@ static int handle_block_comment(FILE *fp, Buffer *buffer)
         if (c == '*') {
             c = fgetc(fp);
 
-            bufAddC(buffer, c);
-
-            if (c == '/') break;
+            if (c == '/') {
+                bufAddC(buffer, c);
+                break;
+            }
+            else {
+                ungetc(c, fp);
+            }
         }
     }
 
@@ -162,7 +167,9 @@ static int handle_compound(FILE *fp, Buffer *buffer)
 /*
  * Read a declaration up to a semicolon or an open curly brace and add it to <declaration>.
  */
-static int handle_declaration(FILE *fp, Buffer *declaration)
+const static
+int
+handle_declaration(FILE *fp, Buffer *declaration)
 {
     int c;
 
@@ -221,6 +228,7 @@ static int process(const char *input, FILE *in, FILE *out)
                 const char *str;
                 int len;
 
+                // Trim all leading whitespace
                 while (TRUE) {
                     str = bufGet(&declaration);
                     len = bufLen(&declaration);
@@ -231,6 +239,7 @@ static int process(const char *input, FILE *in, FILE *out)
                         break;
                 }
 
+                // Trim all trailing whitespace
                 while (TRUE) {
                     str = bufGet(&declaration);
                     len = bufLen(&declaration);
@@ -241,7 +250,19 @@ static int process(const char *input, FILE *in, FILE *out)
                         break;
                 }
 
-                if (include_static == TRUE || strncmp(str, "static", 6) != 0) {
+                const char *ptr = strstr(str, "static");
+                bool include_this_function = false;
+
+                if (ptr == NULL || include_static_functions)
+                    include_this_function = true;   // No "static" or static functions are allowed
+                else if (ptr == str && isspace(ptr[6]))
+                    include_this_function = false;  // "static" at start, followed by whitespace
+                else if (isspace(ptr[-1]) && isspace(ptr[6]))
+                    include_this_function = false;  // "static" preceded and followed by whitespace
+                else
+                    include_this_function = true;   // "static" somewhere in the name maybe?
+
+                if (include_this_function) {
                     fputc('\n', out);
 
                     if (include_comment && bufLen(&comment) > 0) {
@@ -321,7 +342,7 @@ int main(int argc, char *argv[])
             include_comment = TRUE;
         }
         else if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--statics") == 0) {
-            include_static = TRUE;
+            include_static_functions = TRUE;
         }
         else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             usage(NULL, argv[0], 0);
