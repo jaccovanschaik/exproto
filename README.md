@@ -50,8 +50,8 @@ top level of a C file, we will only encounter three things: comments
 (block or line), preprocessor statements, and C declarations. We simply
 reproduce those declarations that seem to define functions (i.e. the
 ones that contain parentheses) and leave out the rest. If a declaration
-starts with the string `static` we leave it in or take it out based on
-the -s/--statics option.
+is `static` we leave it in or take it out based on the -s/--statics
+option.
 
 There are some complications of course. We need to skip function bodies,
 which means we have to count open and close curly braces, but we don't
