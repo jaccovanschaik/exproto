@@ -2,7 +2,7 @@
  * exproto.c: Prototype extractor.
  *
  * Copyright:	(c) 2013 Jacco van Schaik (jacco@jaccovanschaik.net)
- * Version:	$Id: exproto.c 21 2020-01-15 07:37:07Z jacco $
+ * Version:	$Id: exproto.c 23 2021-06-29 09:05:41Z jacco $
  *
  * This software is distributed under the terms of the MIT license. See
  * http://www.opensource.org/licenses/mit-license.php for details.
@@ -22,7 +22,8 @@ static bool include_static_functions  = FALSE;
 static bool use_cpp = FALSE;
 
 /*
- * Read a string and add it to <buf>. The string should be terminated by <terminator>.
+ * Read a string and add it to <buf>. The string should be terminated by
+ * <terminator>.
  */
 static int handle_string(FILE *fp, Buffer *buffer, const char terminator)
 {
@@ -31,7 +32,8 @@ static int handle_string(FILE *fp, Buffer *buffer, const char terminator)
     while ((c = fgetc(fp)) != EOF && c != terminator) {
         bufAddC(buffer, c);
 
-        /* Any escape sequence (particularly escaped quotes) should be entered as-is. */
+        /* Any escape sequence (particularly escaped quotes) should be entered
+         * as-is. */
 
         if (c == '\\') {
             c = fgetc(fp);
@@ -43,7 +45,8 @@ static int handle_string(FILE *fp, Buffer *buffer, const char terminator)
 }
 
 /*
- * Handle a preprocessor line. Extract and return filename if it is a linemarker line.
+ * Handle a preprocessor line. Extract and return filename if it is a
+ * linemarker line.
  */
 static int handle_preprocessor_line(FILE *fp, char **filename)
 {
@@ -75,7 +78,8 @@ static int handle_preprocessor_line(FILE *fp, char **filename)
 }
 
 /*
- * Read a block comment and add it to <buffer>. The starting slash-star are already in <buf>.
+ * Read a block comment and add it to <buffer>. The starting slash-star are
+ * already in <buf>.
  */
 static int handle_block_comment(FILE *fp, Buffer *buffer)
 {
@@ -101,7 +105,8 @@ static int handle_block_comment(FILE *fp, Buffer *buffer)
 }
 
 /*
- * Read a line comment and add it to <buf>. The leading slash-slash are already in <buf>.
+ * Read a line comment and add it to <buf>. The leading slash-slash are
+ * already in <buf>.
  */
 static int handle_line_comment(FILE *fp, Buffer *buf)
 {
@@ -119,7 +124,8 @@ static int handle_line_comment(FILE *fp, Buffer *buf)
 }
 
 /*
- * Read a comment and add it to <buffer>, which already contains the first slash.
+ * Read a comment and add it to <buffer>, which already contains the first
+ * slash.
  */
 static int handle_comment(FILE *fp, Buffer *buffer)
 {
@@ -165,7 +171,8 @@ static int handle_compound(FILE *fp, Buffer *buffer)
 }
 
 /*
- * Read a declaration up to a semicolon or an open curly brace and add it to <declaration>.
+ * Read a declaration up to a semicolon or an open curly brace and add it to
+ * <declaration>.
  */
 static int handle_declaration(FILE *fp, Buffer *declaration)
 {
@@ -198,8 +205,8 @@ static int handle_declaration(FILE *fp, Buffer *declaration)
 }
 
 /*
- * Process input from <in> and write the result to <out>. The name of the original file from which
- * prototypes are to be extracted is in <input>.
+ * Process input from <in> and write the result to <out>. The name of the *
+ * original file from which prototypes are to be extracted is in <input>.
  */
 static int process(const char *input, FILE *in, FILE *out)
 {
@@ -224,7 +231,9 @@ static int process(const char *input, FILE *in, FILE *out)
 
             handle_declaration(in, &declaration);
 
-            if (strchr(bufGet(&declaration), '(') != NULL && strcmp(current_file, input) == 0) {
+            if (strchr(bufGet(&declaration), '(') != NULL &&
+                strcmp(current_file, input) == 0)
+            {
                 const char *str;
                 int len;
 
@@ -253,14 +262,22 @@ static int process(const char *input, FILE *in, FILE *out)
                 const char *ptr = strstr(str, "static");
                 bool include_this_function = false;
 
-                if (ptr == NULL || include_static_functions)
-                    include_this_function = true;   // No "static", or static functions are allowed
-                else if (ptr == str && isspace(ptr[6]))
-                    include_this_function = false;  // "static" at start, followed by whitespace
-                else if (isspace(ptr[-1]) && isspace(ptr[6]))
-                    include_this_function = false;  // "static" preceded and followed by whitespace
-                else
-                    include_this_function = true;   // "static" somewhere in the name maybe?
+                if (ptr == NULL || include_static_functions) {
+                    // No "static", or static functions are allowed
+                    include_this_function = true;
+                }
+                else if (ptr == str && isspace(ptr[6])) {
+                    // "static" at start, followed by whitespace
+                    include_this_function = false;
+                }
+                else if (isspace(ptr[-1]) && isspace(ptr[6])) {
+                    // "static" preceded and followed by whitespace
+                    include_this_function = false;
+                }
+                else {
+                    // "static" somewhere in the name maybe?
+                    include_this_function = true;
+                }
 
                 if (include_this_function) {
                     fputc('\n', out);
@@ -304,14 +321,16 @@ static void usage(const char *msg, const char *argv0, int exitcode)
 
     fprintf(stderr, "Extracts prototypes from C files.\n\n");
 
-    fprintf(stderr, "Options:\n");
-    fprintf(stderr, "  -h --help\t\tShow this help.\n");
-    fprintf(stderr, "  -o --output <file>\tSend output to this file.\n");
-    fprintf(stderr, "  -p --cpp\t\tRun cpp to pre-process source files.\n");
-    fprintf(stderr, "  -c --comments\t\tInclude function comments in output.\n");
-    fprintf(stderr, "  -s --statics\t\tInclude static functions.\n\n");
-    fprintf(stderr, "All other options are passed on as-is to cpp (if it is run).\n");
-    fprintf(stderr, "If <input-file> is not given or if it is '-', input is read from stdin.\n");
+    fprintf(stderr,
+            "Options:\n"
+            "  -h --help\t\tShow this help.\n"
+            "  -o --output <file>\tSend output to this file.\n"
+            "  -p --cpp\t\tRun cpp to pre-process source files.\n"
+            "  -c --comments\t\tInclude function comments in output.\n"
+            "  -s --statics\t\tInclude static functions.\n\n"
+            "All other options are passed on as-is to cpp (if it is run).\n"
+            "If <input-file> is not given or if it is '-', "
+            "input is read from stdin.\n");
 
     exit(exitcode);
 }
@@ -332,19 +351,24 @@ int main(int argc, char *argv[])
         if (strcmp(argv[i], "-") == 0) {
             input = "-";
         }
-        else if (strcmp(argv[i], "-p") == 0 || strcmp(argv[i], "--cpp") == 0) {
+        else if (strcmp(argv[i], "-p") == 0 ||
+                 strcmp(argv[i], "--cpp") == 0) {
             use_cpp = TRUE;
         }
-        else if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0) {
+        else if (strcmp(argv[i], "-o") == 0 ||
+                 strcmp(argv[i], "--output") == 0) {
             output = argv[++i];
         }
-        else if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--comments") == 0) {
+        else if (strcmp(argv[i], "-c") == 0 ||
+                 strcmp(argv[i], "--comments") == 0) {
             include_comment = TRUE;
         }
-        else if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--statics") == 0) {
+        else if (strcmp(argv[i], "-s") == 0 ||
+                 strcmp(argv[i], "--statics") == 0) {
             include_static_functions = TRUE;
         }
-        else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+        else if (strcmp(argv[i], "-h") == 0 ||
+                 strcmp(argv[i], "--help") == 0) {
             usage(NULL, argv[0], 0);
         }
         else if (argv[i][0] == '-') {
