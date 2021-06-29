@@ -2,7 +2,7 @@
  * exproto.c: Prototype extractor.
  *
  * Copyright:	(c) 2013 Jacco van Schaik (jacco@jaccovanschaik.net)
- * Version:	$Id: exproto.c 24 2021-06-29 09:14:21Z jacco $
+ * Version:	$Id: exproto.c 26 2021-06-29 09:52:29Z jacco $
  *
  * This software is distributed under the terms of the MIT license. See
  * http://www.opensource.org/licenses/mit-license.php for details.
@@ -72,6 +72,14 @@ static int handle_preprocessor_line(FILE *fp, char **filename)
 
     do {
         c = fgetc(fp);
+        if (c == '\\') {
+            if ((c = fgetc(fp)) == '\n') {
+                c = ' ';
+            }
+            else {
+                ungetc(c, fp);
+            }
+        }
     } while (c != EOF && c != '\n');
 
     return 0;
