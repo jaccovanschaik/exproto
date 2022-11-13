@@ -1,7 +1,7 @@
 /*
  * exproto.c: Prototype extractor.
  *
- * Copyright:	(c) 2013 Jacco van Schaik (jacco@jaccovanschaik.net)
+ * Copyright:	(c) 2013-2022 Jacco van Schaik (jacco@jaccovanschaik.net)
  * Version:	$Id: exproto.c 26 2021-06-29 09:52:29Z jacco $
  *
  * This software is distributed under the terms of the MIT license. See
@@ -64,7 +64,7 @@ static int handle_preprocessor_line(FILE *fp, char **filename)
             free(*filename);
             *filename = bufDetach(&buffer);
 
-            bufReset(&buffer);
+            bufRewind(&buffer);
         }
     }
 
@@ -194,7 +194,7 @@ static int handle_declaration(FILE *fp, Buffer *declaration)
         else if (c == '{') {
             Buffer body = { 0 };
             handle_compound(fp, &body);
-            bufReset(&body);
+            bufRewind(&body);
             break;
         }
         else if (c == '/') {
@@ -310,8 +310,8 @@ static int process(const char *input, FILE *in, FILE *out)
         }
     }
 
-    bufReset(&comment);
-    bufReset(&declaration);
+    bufRewind(&comment);
+    bufRewind(&declaration);
 
     free(current_file);
 
@@ -419,7 +419,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    bufReset(&cmd);
+    bufRewind(&cmd);
 
     if (output == NULL) {
         out_fp = stdout;
