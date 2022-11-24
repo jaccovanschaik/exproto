@@ -2,7 +2,7 @@
  * exproto.c: Prototype extractor.
  *
  * Copyright:	(c) 2013-2022 Jacco van Schaik (jacco@jaccovanschaik.net)
- * Version:	$Id: exproto.c 26 2021-06-29 09:52:29Z jacco $
+ * Version:	$Id: exproto.c 27 2022-11-09 13:01:12Z jacco $
  *
  * This software is distributed under the terms of the MIT license. See
  * http://www.opensource.org/licenses/mit-license.php for details.
@@ -270,7 +270,7 @@ static int process(const char *input, FILE *in, FILE *out)
                 const char *ptr = strstr(str, "static");
                 bool include_this_function = false;
 
-                if (!isalpha(str[0])) {
+                if (!isalpha(str[0]) && str[0] != '_') {
                     include_this_function = false;
                 }
                 else if (ptr == NULL || include_static_functions) {
