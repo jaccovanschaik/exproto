@@ -1,8 +1,8 @@
 /*
  * exproto.c: Prototype extractor.
  *
- * Copyright:	(c) 2013-2022 Jacco van Schaik (jacco@jaccovanschaik.net)
- * Version:	$Id: exproto.c 27 2022-11-09 13:01:12Z jacco $
+ * Copyright:	(c) 2013-2023 Jacco van Schaik (jacco@jaccovanschaik.net)
+ * Version:	$Id: exproto.c 28 2023-10-24 19:12:06Z jacco $
  *
  * This software is distributed under the terms of the MIT license. See
  * http://www.opensource.org/licenses/mit-license.php for details.
