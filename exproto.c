@@ -1,8 +1,8 @@
 /*
  * exproto.c: Prototype extractor.
  *
- * Copyright:	(c) 2013-2023 Jacco van Schaik (jacco@jaccovanschaik.net)
- * Version:	$Id: exproto.c 28 2023-10-24 19:12:06Z jacco $
+ * Copyright:	(c) 2013-2024 Jacco van Schaik (jacco@jaccovanschaik.net)
+ * Version:	$Id: exproto.c 30 2024-02-13 08:04:19Z jacco $
  *
  * This software is distributed under the terms of the MIT license. See
  * http://www.opensource.org/licenses/mit-license.php for details.
@@ -179,10 +179,13 @@ static int handle_compound(FILE *fp, Buffer *buffer)
 }
 
 /*
- * Read a declaration up to a semicolon or an open curly brace and add it to
- * <declaration>.
+ * Read a (variable or function) declaration and add it to <declaration>. If
+ * the declaration itself contains a comment, either before the closing ';' or
+ * before the opening '{', it is written to <comment> (and the original contents
+ * of <comment> are erased). If there are multiple comments only the last one
+ * is returned.
  */
-static int handle_declaration(FILE *fp, Buffer *declaration)
+static int handle_declaration(FILE *fp, Buffer *declaration, Buffer *comment)
 {
     int c;
 
@@ -198,8 +201,9 @@ static int handle_declaration(FILE *fp, Buffer *declaration)
             break;
         }
         else if (c == '/') {
-            bufAddC(declaration, c);
-            handle_comment(fp, declaration);
+            bufRewind(comment);
+            bufAddC(comment, c);
+            handle_comment(fp, comment);
         }
         else if (c == '"' || c == '\'') {
             handle_string(fp, declaration, c);
@@ -213,7 +217,7 @@ static int handle_declaration(FILE *fp, Buffer *declaration)
 }
 
 /*
- * Process input from <in> and write the result to <out>. The name of the *
+ * Process input from <in> and write the result to <out>. The name of the
  * original file from which prototypes are to be extracted is in <input>.
  */
 static int process(const char *input, FILE *in, FILE *out)
@@ -237,7 +241,7 @@ static int process(const char *input, FILE *in, FILE *out)
         else if (!isspace(c) && c != ';') {
             bufSetC(&declaration, c);
 
-            handle_declaration(in, &declaration);
+            handle_declaration(in, &declaration, &comment);
 
             if (strchr(bufGet(&declaration), '(') != NULL &&
                 strcmp(current_file, input) == 0)
@@ -274,7 +278,7 @@ static int process(const char *input, FILE *in, FILE *out)
                     include_this_function = false;
                 }
                 else if (ptr == NULL || include_static_functions) {
-                    // No "static", or static functions are allowed
+                    // Not static, or static functions are allowed
                     include_this_function = true;
                 }
                 else if (ptr == str && isspace(ptr[6])) {
