@@ -1,6 +1,6 @@
 # Makefile: Description
 #
-# Copyright:	(c) 2013 Jacco van Schaik (jacco@jaccovanschaik.net)
+# Copyright:	(c) 2013-2025 Jacco van Schaik (jacco@jaccovanschaik.net)
 # Version:	$Id: Makefile 25 2021-06-29 09:51:44Z jacco $
 #
 # This software is distributed under the terms of the MIT license. See
@@ -29,6 +29,12 @@ exproto.tgz: clean
 install: exproto
 	if [ ! -d $(INSTALL_BIN) ]; then mkdir -p $(INSTALL_BIN); fi
 	cp exproto $(INSTALL_BIN)
+
+update:
+	git stash push
+	git pull
+	-git stash pop
+	make install
 
 commit:
 	@echo "\033[7mSubversion status:\033[0m"
